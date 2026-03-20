@@ -1,260 +1,347 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Fromfolio – Industrial Design</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bumblebee – Autonomous Rides</title>
 
-  <!-- Google Fonts -->
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
 
   <style>
-    :root {
-      --bg-dark: #000000;
-      --bg-light: #e9e9e9;
-      --card-bg: #ffffff;
-      --text-primary: #0a0a0a;
-      --text-secondary: #6b6b6b;
-      --accent: #c6a96b;
-      --radius: 18px;
-      --radius-large: 26px;
-    }
+    * { margin:0; padding:0; box-sizing:border-box; font-family:"Inter", sans-serif; }
+    body { background:#ffffff; }
 
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-      font-family: "Inter", sans-serif;
-    }
-
-    body {
-      background: var(--bg-light);
-      color: var(--text-primary);
-    }
-
-    /* Header */
-    header {
-      background: var(--bg-dark);
-      color: white;
-      padding: 16px 32px;
+    /* NAVBAR */
+    .navbar {
+      position: fixed;
+      top: 0;
+      width: 100%;
+      padding: 20px 60px;
       display: flex;
-      justify-content: space-between;
-      align-items: center;
+      justify-content: flex-end;
+      z-index: 100;
+      background: rgba(15, 23, 42, 0.4);
+      backdrop-filter: blur(10px);
+      transition: background 0.4s;
     }
+    .navbar.scrolled { background: rgba(15, 23, 42, 0.92); }
+    .nav-links { display: flex; gap: 36px; align-items: center; }
+    .nav-links a {
+      text-decoration: none;
+      color: #ffffffcc;
+      font-size: 14px;
+      font-weight: 500;
+      position: relative;
+      transition: color 0.3s;
+    }
+    .nav-links a::after {
+      content: '';
+      position: absolute;
+      width: 0;
+      height: 2px;
+      bottom: -4px;
+      left: 0;
+      background: #ffb300;
+      transition: width 0.35s ease;
+    }
+    .nav-links a:hover::after,
+    .nav-links a.active::after { width: 100%; }
+    .nav-links a:hover,
+    .nav-links a.active { color: #ffb300; }
+
+    /* HERO – no dark overlay */
+    .hero {
+      position: relative;
+      width: 100%;
+      height: 100vh;
+      overflow: hidden;
+    }
+    .hero img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transform: scale(1.05);
+      transition: transform 12s ease;
+    }
+    .hero:hover img { transform: scale(1.08); }
+
+    .hero-overlay {
+      position: absolute;
+      inset: 0;
+      padding: 140px 60px 60px;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+      color: white;
+      /* Removed dark gradient – image is now fully visible */
+      /* background: linear-gradient(to bottom, rgba(0,0,0,0.4), rgba(0,0,0,0.7) 70%); ← removed */
+      opacity: 0;
+      transform: translateY(30px);
+      transition: all 1.2s ease-out;
+      text-shadow: 0 2px 10px rgba(0,0,0,0.7); /* improved readability */
+    }
+    .hero.loaded .hero-overlay { opacity: 1; transform: translateY(0); }
 
     .logo {
-      font-weight: 600;
-      letter-spacing: 1px;
+      font-family: 'Predatron', sans-serif;
+      font-size: 84px;
+      color: #ffb300;
+      margin-bottom: 24px;
+      opacity: 0;
+      transform: translateY(20px);
+      transition: all 1s ease-out 0.3s;
+      text-shadow: 0 4px 12px rgba(0,0,0,0.6);
+    }
+    .hero.loaded .logo { opacity: 1; transform: translateY(0); }
+
+    .hero-text {
+      max-width: 480px;
+      font-size: 19px;
+      line-height: 1.5;
+      opacity: 0;
+      transform: translateY(20px);
+      transition: all 1s ease-out 0.6s;
+      text-shadow: 0 2px 8px rgba(0,0,0,0.5);
+    }
+    .hero.loaded .hero-text { opacity: 1; transform: translateY(0); }
+
+    /* Common fade-in */
+    .fade-in {
+      opacity: 0;
+      transform: translateY(40px);
+      transition: all 1s ease-out;
+    }
+    .fade-in.visible {
+      opacity: 1;
+      transform: translateY(0);
     }
 
-    nav {
-      display: flex;
-      gap: 28px;
-      align-items: center;
-    }
-
-    nav a {
-      color: white;
-      text-decoration: none;
-      font-size: 14px;
-      opacity: 0.9;
-    }
-
-    .btn-outline {
-      padding: 8px 16px;
-      border: 1px solid var(--accent);
-      border-radius: 999px;
-      color: var(--accent);
-      background: transparent;
-      cursor: pointer;
-    }
-
-    .btn-solid {
-      padding: 8px 18px;
-      border-radius: 999px;
-      border: none;
+    /* Cards hover lift */
+    .card {
       background: white;
-      color: black;
-      cursor: pointer;
-      font-weight: 500;
+      padding: 32px;
+      border-radius: 16px;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.08);
+      transition: all 0.4s ease;
+    }
+    .card:hover {
+      transform: translateY(-12px) scale(1.03);
+      box-shadow: 0 20px 40px rgba(0,0,0,0.14);
     }
 
-    /* Container */
-    .container {
-      max-width: 1300px;
-      margin: auto;
-      padding: 40px 32px;
+    /* Rest of styles (stats, sections, steps, CTA, footer) */
+    .stats {
+      display: flex;
+      justify-content: space-around;
+      padding: 60px 60px;
+      background: #f5f5f5;
+      text-align: center;
     }
+    .stat h2 { color: #f59e0b; font-size: 36px; }
+    .stat p { font-size: 14px; color: #555; margin-top: 8px; }
 
-    /* Hero */
-    .hero {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 40px;
-      align-items: center;
-      margin-bottom: 40px;
+    .section {
+      padding: 100px 60px;
+      text-align: center;
     }
-
-    .hero-text h1 {
-      font-size: 44px;
-      font-weight: 500;
-      margin-bottom: 16px;
-    }
-
-    .hero-text p {
+    .section h2 { font-size: 40px; margin-bottom: 16px; }
+    .section p {
+      color: #666;
       font-size: 18px;
-      color: var(--text-secondary);
+      margin-bottom: 60px;
+      max-width: 720px;
+      margin-left: auto;
+      margin-right: auto;
     }
 
-    .hero-image {
-      background: linear-gradient(145deg, #0b0b0b, #2a2a2a);
-      border-radius: var(--radius-large);
-      height: 260px;
+    .cards {
+      display: flex;
+      gap: 32px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .steps {
+      display: flex;
+      justify-content: center;
+      gap: 100px;
+      flex-wrap: wrap;
+      margin-top: 60px;
+    }
+    .step {
+      text-align: center;
+      width: 220px;
+    }
+    .circle {
+      width: 64px;
+      height: 64px;
+      border-radius: 50%;
       display: flex;
       align-items: center;
       justify-content: center;
-      overflow: hidden;
-    }
-
-    .hero-image img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      opacity: 0.9;
-    }
-
-    /* Cards grid */
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 24px;
-    }
-
-    .card {
-      background: var(--card-bg);
-      border-radius: var(--radius);
-      overflow: hidden;
-      position: relative;
-      height: 200px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.05);
-      cursor: pointer;
-      transition: transform 0.2s ease;
-    }
-
-    .card:hover {
-      transform: translateY(-4px);
-    }
-
-    .card img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-    }
-
-    .card-overlay {
-      position: absolute;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      padding: 12px;
       color: white;
-      background: linear-gradient(transparent, rgba(0,0,0,0.7));
-      font-size: 14px;
+      margin: 0 auto 20px;
+      font-size: 24px;
+      font-weight: 600;
+      transition: all 0.5s ease;
+    }
+    .step:hover .circle { transform: scale(1.15); }
+
+    .big-cta {
+      padding: 100px 60px;
+      text-align: center;
+      color: white;
+      background: linear-gradient(135deg, #8b5cf6, #f59e0b);
+    }
+    .big-cta button {
+      margin-top: 32px;
+      padding: 16px 48px;
+      font-size: 18px;
+      font-weight: 600;
+      background: white;
+      color: #1e293b;
+      border: none;
+      border-radius: 999px;
+      cursor: pointer;
+      transition: all 0.4s;
+    }
+    .big-cta button:hover {
+      transform: scale(1.08);
+      box-shadow: 0 12px 32px rgba(0,0,0,0.25);
     }
 
-    .placeholder {
-      background: repeating-linear-gradient(
-        45deg,
-        #f0f0f0,
-        #f0f0f0 10px,
-        #e3e3e3 10px,
-        #e3e3e3 20px
-      );
+    footer {
+      background: #0f172a;
+      color: #ccc;
+      padding: 80px 60px;
+      display: flex;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 60px;
     }
-
-    /* Responsive */
-    @media (max-width: 1000px) {
-      .hero {
-        grid-template-columns: 1fr;
-      }
-
-      .grid {
-        grid-template-columns: repeat(2, 1fr);
-      }
+    footer h4 { color: white; margin-bottom: 16px; font-size: 18px; }
+    footer a {
+      color: #aaa;
+      text-decoration: none;
+      display: block;
+      margin-bottom: 10px;
+      font-size: 15px;
     }
+    footer a:hover { color: #ffb300; }
 
-    @media (max-width: 600px) {
-      .grid {
-        grid-template-columns: 1fr;
-      }
-
-      .hero-text h1 {
-        font-size: 32px;
-      }
+    @media (max-width: 960px) {
+      .navbar { padding: 16px 30px; }
+      .hero { height: 80vh; }
+      .section { padding: 80px 30px; }
+      .cards, .steps { flex-direction: column; align-items: center; }
     }
   </style>
 </head>
 <body>
 
-  <!-- Header -->
-  <header>
-    <div class="logo">FROMFOLIO</div>
-
-    <nav>
-      <a href="#">Explore</a>
-      <a href="#">Find jobs</a>
-      <a href="#">News</a>
-      <button class="btn-outline">Start hiring</button>
-      <a href="#">Login</a>
-      <button class="btn-solid">Register</button>
-    </nav>
-  </header>
-
-
-  <!-- Main -->
-  <div class="container">
-
-    <!-- Hero -->
-    <section class="hero">
-
-      <div class="hero-text">
-        <h1>Explore the World of Industrial Design</h1>
-        <p>
-          Get inspired by real projects shared by designers worldwide.
-        </p>
-      </div>
-
-      <div class="hero-image">
-        <!-- Replace with your image -->
-        <img src="https://images.unsplash.com/photo-1542365887-3d1d0b59e8b3?q=80&w=1400" alt="Concept car">
-      </div>
-
-    </section>
-
-
-    <!-- Cards -->
-    <section class="grid">
-
-      <div class="card">
-        <img src="https://images.unsplash.com/photo-1619767886558-efdc259cde1a?q=80&w=1200">
-        <div class="card-overlay">Cupra Relampago</div>
-      </div>
-
-      <div class="card">
-        <img src="https://images.unsplash.com/photo-1569263979104-865ab7cd8d13?q=80&w=1200">
-        <div class="card-overlay">Jet-ski powered yacht</div>
-      </div>
-
-      <div class="card placeholder"></div>
-
-      <div class="card">
-        <img src="https://images.unsplash.com/photo-1520975928316-7f6d25cc3c61?q=80&w=1200">
-        <div class="card-overlay">New project</div>
-      </div>
-
-    </section>
-
+  <!-- NAVBAR -->
+  <div class="navbar" id="navbar">
+    <div class="nav-links">
+      <a href="#" class="active">Home</a>
+      <a href="features.html">Features</a>
+      <a href="book.html">Book a Ride</a>
+    </div>
   </div>
+
+  <!-- HERO – no overlay, full image visibility -->
+  <section class="hero">
+    <img src="your-car-image.png" alt="Bumblebee vehicle">
+
+    <div class="hero-overlay">
+      <div class="logo">bumblebee</div>
+      <div class="hero-text">
+        Experience autonomous rides that are safe, efficient, and always available.<br>
+        Welcome to Bumblebee.
+      </div>
+    </div>
+  </section>
+
+  <!-- STATS -->
+  <section class="stats fade-in">
+    <div class="stat"><h2>5/5</h2><p>Safety Rating</p></div>
+    <div class="stat"><h2>24/7</h2><p>Availability</p></div>
+    <div class="stat"><h2>5M+</h2><p>Rides Completed</p></div>
+    <div class="stat"><h2>100+</h2><p>Cities Worldwide</p></div>
+  </section>
+
+  <!-- WHY -->
+  <section class="section">
+    <h2 class="fade-in">Why Choose Bumblebee?</h2>
+    <p class="fade-in">Experience the next generation of transportation with cutting-edge autonomous technology</p>
+
+    <div class="cards">
+      <div class="card fade-in"><h3>Ultra Safe</h3><p>Advanced AI and sensor technology ensure the highest safety standards for every journey.</p></div>
+      <div class="card fade-in" style="transition-delay:0.1s"><h3>Lightning Fast</h3><p>Optimized routes and instant booking get you to your destination in record time.</p></div>
+      <div class="card fade-in" style="transition-delay:0.2s"><h3>Always Available</h3><p>24/7 service means you'll never have to wait. Your ride is just a tap away.</p></div>
+    </div>
+  </section>
+
+  <!-- HOW IT WORKS -->
+  <section class="section">
+    <h2 class="fade-in">How It Works</h2>
+    <p class="fade-in">Getting started with Bumblebee is simple and seamless</p>
+
+    <div class="steps">
+      <div class="step fade-in"><div class="circle c1">1</div><h4>Download & Book</h4><p>Download the app and request a ride instantly.</p></div>
+      <div class="step fade-in" style="transition-delay:0.15s"><div class="circle c2">2</div><h4>Track Your Ride</h4><p>Watch your vehicle arrive in real time.</p></div>
+      <div class="step fade-in" style="transition-delay:0.3s"><div class="circle c3">3</div><h4>Enjoy the Journey</h4><p>Sit back and enjoy a smooth ride.</p></div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="big-cta fade-in">
+    <h2>Ready to Experience the Future?</h2>
+    <p>Join millions of satisfied riders and discover a new way to travel</p>
+    <button>Book Your First Ride</button>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <div>
+      <h4>Bumblebee</h4>
+      <p>The future of transportation is here.</p>
+    </div>
+    <div>
+      <h4>Quick Links</h4>
+      <a href="#">Home</a>
+      <a href="features.html">Features</a>
+      <a href="book.html">Book a Ride</a>
+    </div>
+    <div>
+      <h4>Support</h4>
+      <a href="#">Help Center</a>
+      <a href="#">Privacy Policy</a>
+    </div>
+  </footer>
+
+  <script>
+    // Navbar background on scroll
+    window.addEventListener('scroll', () => {
+      document.getElementById('navbar').classList.toggle('scrolled', window.scrollY > 100);
+    });
+
+    // Fade-in on scroll
+    const fadeElements = document.querySelectorAll('.fade-in');
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+        }
+      });
+    }, { threshold: 0.15 });
+
+    fadeElements.forEach(el => observer.observe(el));
+
+    // Hero load animation
+    setTimeout(() => {
+      document.querySelector('.hero').classList.add('loaded');
+    }, 300);
+  </script>
 
 </body>
 </html>
